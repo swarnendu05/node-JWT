@@ -1,0 +1,52 @@
+<%- include('partials/header'); -%>
+
+<form action="/signup">
+  <h2>Sign up</h2>
+  <label for="name">Name</label>
+  <input type="text" name="name" required />
+  <label for="email">Email</label>
+  <input type="text" name="email" required />
+  <div class="email error" id="emailError"></div>
+  <label for="password">Password</label>
+  <input type="password" name="password" required />
+  <div class="password error" id="pwdError"></div>
+  <button>Sign up</button>
+</form>
+
+<%- include('partials/footer'); -%>
+
+<script>
+  const form = document.querySelector("form");
+  const emailError = document.getElementById("emailError");
+  const pwdError = document.getElementById("pwdError");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    //RESETTING THE FRONTEND ERROR TEXT
+    emailError.textContent = "";
+    pwdError.textContent = "";
+    // get values
+    const name = form.name.value;
+    const email = form.email.value;
+    const password = form.password.value;
+    try {
+      const res = await fetch("/signup", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+        headers: { "Content-type": "application/json" },
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.user) {
+        location.assign("/");
+      }
+      if (data.errors) {
+        emailError.textContent = data.errors.email;
+        pwdError.textContent = data.errors.password;
+      }
+    } catch (err) {
+      console.log("Frontend", err.message);
+    }
+  });
+</script>
